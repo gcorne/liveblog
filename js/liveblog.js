@@ -34,6 +34,9 @@ window.liveblog = {};
 
 	liveblog.EntriesQueue = Backbone.Collection.extend({
 		model: liveblog.Entry,
+		comparator: function(entry) {
+			return entry.get('timestamp');
+		},
 		flush: function() {
 			if (this.isEmpty()) {
 				return;
@@ -225,8 +228,6 @@ window.liveblog = {};
 				modifying =  _.filter(response.entries, function(entry) { return 'update' === entry.type || 'delete' === entry.type; } );
 				liveblog.queue.add(added);
 				liveblog.queue.applyModifyingEntries(modifying);
-				// updating and deleting entries is rare enough, so that we can screw the user's scroll and not queue those events
-				liveblog.display_entries(modifying);
 			}
 		}
 

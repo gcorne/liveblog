@@ -14,6 +14,7 @@ class WPCOM_Liveblog_Entry {
 	const replaces_meta_key   = 'liveblog_replaces';
 
 	private $comment;
+	private $original_comment;
 	private $type = 'new';
 
 	public function __construct( $comment ) {
@@ -21,6 +22,7 @@ class WPCOM_Liveblog_Entry {
 		$this->replaces = get_comment_meta( $comment->comment_ID, self::replaces_meta_key, true );
 		if ( $this->replaces && $this->get_content() ) {
 			$this->type = 'update';
+			$this->original_comment = get_comment( $this->replaces );
 		}
 		if ( $this->replaces && !$this->get_content() ) {
 			$this->type = 'delete';
@@ -59,9 +61,10 @@ class WPCOM_Liveblog_Entry {
 
 	public function for_json() {
 		return (object) array(
-			'id'   => $this->replaces ? $this->replaces : $this->get_id(),
-			'type' => $this->get_type(),
-			'html' => $this->render(),
+			'id'        => $this->replaces ? $this->replaces : $this->get_id(),
+			'timestamp' => $this->replaces ? mysql2date( 'G', $this->original_comment->comment_date_gmt ) : $this->get_timestamp(),
+			'type'      => $this->get_type(),
+			'html'      => $this->render(),
 		);
 	}
 
