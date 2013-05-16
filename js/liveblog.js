@@ -207,7 +207,7 @@ window.liveblog = {};
 	};
 
 	liveblog.get_recent_entries_success = function( response, status, xhr ) {
-		var added, modifying;
+		var added, modifying, modifying_already_displayed;
 
 		liveblog.consecutive_failures_count = 0;
 
@@ -228,6 +228,9 @@ window.liveblog = {};
 				modifying =  _.filter(response.entries, function(entry) { return 'update' === entry.type || 'delete' === entry.type; } );
 				liveblog.queue.add(added);
 				liveblog.queue.applyModifyingEntries(modifying);
+
+				modifying_already_displayed = _.filter( modifying, function(entry) { return ! liveblog.queue.get(entry.ID) } );
+				liveblog.display_entries( modifying_already_displayed );
 			}
 		}
 
